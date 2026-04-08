@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">Todo App</string>
+    <string name="top_app_bar_title">My Todos</string>
+    <string name="content_description_add_todo">Add todo</string>
+    <string name="content_description_delete_todo">Delete todo</string>
+    <string name="empty_state_title">No todos yet</string>
+    <string name="empty_state_message">Tap + to add your first task</string>
+    <string name="dialog_add_todo_title">New todo</string>
+    <string name="dialog_todo_hint">What do you need to do?</string>
+    <string name="dialog_add_confirm">Add</string>
+    <string name="dialog_add_cancel">Cancel</string>
+    <string name="widget_title">My Todos</string>
+    <string name="widget_empty">Open the app to add tasks</string>
+    <string name="widget_description">Shows your latest todos. Tap to open the app.</string>
+</resources>
