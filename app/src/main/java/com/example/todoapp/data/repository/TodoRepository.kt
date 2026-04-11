@@ -26,6 +26,11 @@ class TodoRepository @Inject constructor(
         TodoWidgetRefresh.refresh(context)
     }
 
+    suspend fun updateAll(todos: List<TodoEntity>) {
+        todoDao.updateAll(todos)
+        TodoWidgetRefresh.refresh(context)
+    }
+
     suspend fun delete(todo: TodoEntity) {
         todoDao.delete(todo)
         TodoWidgetRefresh.refresh(context)

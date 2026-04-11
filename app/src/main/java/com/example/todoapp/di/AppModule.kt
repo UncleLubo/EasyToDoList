@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.room.Room
 import com.example.todoapp.data.local.TodoDao
 import com.example.todoapp.data.local.TodoDatabase
+import com.example.todoapp.data.local.TodoDatabase.Companion.MIGRATION_1_2
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -21,7 +22,9 @@ object AppModule {
             context,
             TodoDatabase::class.java,
             "todo_database",
-        ).build()
+        )
+            .addMigrations(MIGRATION_1_2)
+            .build()
     }
 
     @Provides

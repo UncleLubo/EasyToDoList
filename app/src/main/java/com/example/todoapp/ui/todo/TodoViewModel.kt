@@ -52,4 +52,17 @@ class TodoViewModel @Inject constructor(
             repository.delete(todo)
         }
     }
+
+    /**
+     * Reorders tasks and updates their positions in the database.
+     */
+    fun saveReorderedTasks(reorderedList: List<TodoEntity>) {
+        val updatedList = reorderedList.mapIndexed { index, todo ->
+            todo.copy(position = index)
+        }
+
+        viewModelScope.launch {
+            repository.updateAll(updatedList)
+        }
+    }
 }
