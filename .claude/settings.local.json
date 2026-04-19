@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew :app:compileDebugKotlin)",
+      "Bash(adb devices *)",
+      "Bash(./gradlew :app:assembleDebug)"
+    ]
+  }
+}
