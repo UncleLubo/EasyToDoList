@@ -23,7 +23,8 @@ import androidx.glance.text.TextStyle
 import androidx.glance.unit.ColorProvider
 import com.example.todoapp.MainActivity
 import com.example.todoapp.R
-import com.example.todoapp.data.local.TodoEntity
+import com.example.todoapp.domain.model.Todo
+import com.example.todoapp.data.mapper.toDomain
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -37,7 +38,7 @@ object TodoListGlanceWidget : GlanceAppWidget() {
         ).todoDao()
 
         val initialTodos = withContext(Dispatchers.IO) {
-            dao.getTodosForWidget(MAX_ITEMS)
+            dao.getTodosForWidget(MAX_ITEMS).map { it.toDomain() }
         }
 
         val openApp = Intent(context, MainActivity::class.java).apply {
@@ -45,8 +46,8 @@ object TodoListGlanceWidget : GlanceAppWidget() {
         }
 
         provideContent {
-            val allTodos by dao.getAll().collectAsState(initial = initialTodos)
-            val todos = allTodos.take(MAX_ITEMS)
+            val allTodosEntities by dao.getAll().collectAsState(initial = emptyList())
+            val todos = if (allTodosEntities.isEmpty()) initialTodos else allTodosEntities.take(MAX_ITEMS).map { it.toDomain() }
 
             GlanceTheme {
                 Column(
@@ -75,7 +76,7 @@ object TodoListGlanceWidget : GlanceAppWidget() {
 }
 
 @Composable
-private fun TodoLine(todo: TodoEntity) {
+private fun TodoLine(todo: Todo) {
     val prefix = if (todo.isCompleted) "✓ " else "• "
     Text(
         text = prefix + todo.title,

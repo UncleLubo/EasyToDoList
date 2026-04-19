@@ -1,13 +1,11 @@
 package com.example.todoapp.ui.todo
 
-import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.todoapp.data.local.TodoEntity
 import com.example.todoapp.data.repository.TodoRepository
-import com.example.todoapp.widget.TodoWidgetRefresh
+import com.example.todoapp.domain.model.Todo
+import com.example.todoapp.widget.WidgetUpdater
 import dagger.hilt.android.lifecycle.HiltViewModel
-import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -17,10 +15,10 @@ import kotlinx.coroutines.launch
 @HiltViewModel
 class TodoViewModel @Inject constructor(
     private val repository: TodoRepository,
-    @ApplicationContext private val context: Context,
+    private val widgetUpdater: WidgetUpdater,
 ) : ViewModel() {
 
-    val todos: StateFlow<List<TodoEntity>> = repository.observeTodos()
+    val todos: StateFlow<List<Todo>> = repository.observeTodos()
         .stateIn(
             scope = viewModelScope,
             started = SharingStarted.WhileSubscribed(5_000),
@@ -28,7 +26,7 @@ class TodoViewModel @Inject constructor(
         )
 
     private suspend fun refreshWidget() {
-        TodoWidgetRefresh.refresh(context)
+        widgetUpdater.refresh()
     }
 
     /**
@@ -39,15 +37,15 @@ class TodoViewModel @Inject constructor(
         val trimmed = title.trim()
         if (trimmed.isBlank()) return
         viewModelScope.launch {
-            repository.insert(TodoEntity(title = trimmed))
+            repository.insert(Todo(title = trimmed))
             refreshWidget()
         }
     }
 
     /**
-     * Toggles [TodoEntity.isCompleted] for [todo] and saves the updated row.
+     * Toggles [Todo.isCompleted] for [todo] and saves the updated row.
      */
-    fun toggleTodo(todo: TodoEntity) {
+    fun toggleTodo(todo: Todo) {
         viewModelScope.launch {
             repository.update(todo.copy(isCompleted = !todo.isCompleted))
             refreshWidget()
@@ -57,7 +55,7 @@ class TodoViewModel @Inject constructor(
     /**
      * Permanently removes [todo] from local storage.
      */
-    fun deleteTodo(todo: TodoEntity) {
+    fun deleteTodo(todo: Todo) {
         viewModelScope.launch {
             repository.delete(todo)
             refreshWidget()
@@ -67,7 +65,7 @@ class TodoViewModel @Inject constructor(
     /**
      * Reorders tasks and updates their positions in the database.
      */
-    fun saveReorderedTasks(reorderedList: List<TodoEntity>) {
+    fun saveReorderedTasks(reorderedList: List<Todo>) {
         val updatedList = reorderedList.mapIndexed { index, todo ->
             todo.copy(position = index)
         }

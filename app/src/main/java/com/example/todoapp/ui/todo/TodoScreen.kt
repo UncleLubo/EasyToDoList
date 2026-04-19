@@ -55,7 +55,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.todoapp.R
-import com.example.todoapp.data.local.TodoEntity
+import com.example.todoapp.domain.model.Todo
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
@@ -172,11 +172,11 @@ private fun EmptyTodoState(modifier: Modifier = Modifier) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun TodoList(
-    todos: List<TodoEntity>,
+    todos: List<Todo>,
     modifier: Modifier = Modifier,
-    onToggle: (TodoEntity) -> Unit,
-    onDelete: (TodoEntity) -> Unit,
-    onMove: (List<TodoEntity>) -> Unit,
+    onToggle: (Todo) -> Unit,
+    onDelete: (Todo) -> Unit,
+    onMove: (List<Todo>) -> Unit,
 ) {
     var localTodos by remember { mutableStateOf(todos) }
     var isDraggingGlobal by remember { mutableStateOf(false) }
@@ -255,7 +255,7 @@ private fun TodoList(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun SwipeableTodoRow(
-    todo: TodoEntity,
+    todo: Todo,
     isSwipeEnabled: Boolean = true,
     elevation: androidx.compose.ui.unit.Dp = 0.dp,
     onToggle: () -> Unit,
