@@ -20,7 +20,7 @@ import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.filled.DragHandle
+import androidx.compose.material.icons.filled.UnfoldMore
 import androidx.compose.material.icons.outlined.TaskAlt
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -42,6 +42,7 @@ import androidx.compose.material3.rememberSwipeToDismissBoxState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
@@ -177,7 +178,18 @@ private fun TodoList(
     onDelete: (TodoEntity) -> Unit,
     onMove: (List<TodoEntity>) -> Unit,
 ) {
-    var localTodos by remember(todos) { mutableStateOf(todos) }
+    var localTodos by remember { mutableStateOf(todos) }
+    var isDraggingGlobal by remember { mutableStateOf(false) }
+
+    // 2. & 3. Sync from DB to UI ONLY when the user is NOT dragging.
+    // This prevents the UI from flickering, and stops the dragged item from
+    // snapping back if Room emits a new list (e.g. from background updates) mid-drag.
+    LaunchedEffect(todos) {
+        if (!isDraggingGlobal) {
+            localTodos = todos
+        }
+    }
+
     val lazyListState = rememberLazyListState()
 
     val reorderableLazyListState = rememberReorderableLazyListState(lazyListState) { from, to ->
@@ -211,14 +223,24 @@ private fun TodoList(
                     dragHandle = {
                         IconButton(
                             modifier = Modifier.draggableHandle(
+                                onDragStarted = {
+                                    isDraggingGlobal = true
+                                },
                                 onDragStopped = {
-                                    onMove(localTodos)
+                                    isDraggingGlobal = false
+                                    // 1. DB writes are heavily minimized.
+                                    // We only call saveReorderedTasks when the user physically finishes dragging 
+                                    // AND the list order has genuinely changed compared to the latest DB emission.
+                                    val orderChanged = localTodos.map { it.id } != todos.map { it.id }
+                                    if (orderChanged) {
+                                        onMove(localTodos)
+                                    }
                                 },
                             ),
                             onClick = {},
                         ) {
                             Icon(
-                                imageVector = Icons.Filled.DragHandle,
+                                imageVector = Icons.Filled.UnfoldMore,
                                 contentDescription = stringResource(R.string.content_description_drag_handle),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
