@@ -3,8 +3,6 @@ package com.example.todoapp.widget
 import android.content.Context
 import android.content.Intent
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceId
@@ -37,7 +35,7 @@ object TodoListGlanceWidget : GlanceAppWidget() {
             TodoWidgetEntryPoint::class.java,
         ).todoDao()
 
-        val initialTodos = withContext(Dispatchers.IO) {
+        val todos = withContext(Dispatchers.IO) {
             dao.getTodosForWidget(MAX_ITEMS).map { it.toDomain() }
         }
 
@@ -46,9 +44,6 @@ object TodoListGlanceWidget : GlanceAppWidget() {
         }
 
         provideContent {
-            val allTodosEntities by dao.getAll().collectAsState(initial = emptyList())
-            val todos = if (allTodosEntities.isEmpty()) initialTodos else allTodosEntities.take(MAX_ITEMS).map { it.toDomain() }
-
             GlanceTheme {
                 Column(
                     modifier = GlanceModifier
