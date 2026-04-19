@@ -2,6 +2,8 @@ package com.example.todoapp.data.repository
 
 import com.example.todoapp.data.local.TodoDao
 import com.example.todoapp.data.local.TodoEntity
+import com.example.todoapp.data.mapper.toDomain
+import com.example.todoapp.data.mapper.toEntity
 import com.example.todoapp.domain.model.Todo
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -39,19 +41,3 @@ class TodoRepositoryImpl @Inject constructor(
         todoDao.delete(todo.toEntity())
     }
 }
-
-fun TodoEntity.toDomain() = Todo(
-    id = id,
-    title = title,
-    isCompleted = isCompleted,
-    createdAt = createdAt,
-    position = position
-)
-
-fun Todo.toEntity() = TodoEntity(
-    id = id,
-    title = title,
-    isCompleted = isCompleted,
-    createdAt = createdAt,
-    position = position
-)
