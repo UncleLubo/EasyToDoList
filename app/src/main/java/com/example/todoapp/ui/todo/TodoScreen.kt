@@ -59,13 +59,33 @@ import com.example.todoapp.domain.model.Todo
 import sh.calvin.reorderable.ReorderableItem
 import sh.calvin.reorderable.rememberReorderableLazyListState
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TodoScreen(
     modifier: Modifier = Modifier,
     viewModel: TodoViewModel = hiltViewModel(),
 ) {
     val todos by viewModel.todos.collectAsStateWithLifecycle()
+    
+    TodoScreenContent(
+        todos = todos,
+        modifier = modifier,
+        onAddTodo = viewModel::addTodo,
+        onToggleTodo = viewModel::toggleTodo,
+        onDeleteTodo = viewModel::deleteTodo,
+        onMoveTodo = viewModel::saveReorderedTasks,
+    )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TodoScreenContent(
+    todos: List<Todo>,
+    modifier: Modifier = Modifier,
+    onAddTodo: (String) -> Unit,
+    onToggleTodo: (Todo) -> Unit,
+    onDeleteTodo: (Todo) -> Unit,
+    onMoveTodo: (List<Todo>) -> Unit,
+) {
     var draftTitle by rememberSaveable { mutableStateOf("") }
 
     Scaffold(
@@ -99,7 +119,7 @@ fun TodoScreen(
                     FloatingActionButton(
                         onClick = {
                             if (draftTitle.trim().isNotBlank()) {
-                                viewModel.addTodo(draftTitle)
+                                onAddTodo(draftTitle)
                                 draftTitle = ""
                             }
                         },
@@ -134,9 +154,9 @@ fun TodoScreen(
             TodoList(
                 todos = todos,
                 modifier = Modifier.padding(innerPadding),
-                onToggle = viewModel::toggleTodo,
-                onDelete = viewModel::deleteTodo,
-                onMove = viewModel::saveReorderedTasks,
+                onToggle = onToggleTodo,
+                onDelete = onDeleteTodo,
+                onMove = onMoveTodo,
             )
         }
     }

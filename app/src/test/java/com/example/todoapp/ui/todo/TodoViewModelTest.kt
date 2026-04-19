@@ -74,4 +74,22 @@ class TodoViewModelTest {
         coVerify { repository.delete(todo) }
         coVerify { widgetUpdater.refresh() }
     }
+
+    @Test
+    fun `saveReorderedTasks updates positions and calls repository`() = runTest {
+        val task1 = Todo(id = 1, title = "Task 1", position = 5)
+        val task2 = Todo(id = 2, title = "Task 2", position = 8)
+        val reorderedList = listOf(task1, task2)
+
+        viewModel.saveReorderedTasks(reorderedList)
+
+        coVerify {
+            repository.updateAll(match { updatedList ->
+                updatedList.size == 2 &&
+                updatedList[0].id == 1 && updatedList[0].position == 0 &&
+                updatedList[1].id == 2 && updatedList[1].position == 1
+            })
+        }
+        coVerify { widgetUpdater.refresh() }
+    }
 }

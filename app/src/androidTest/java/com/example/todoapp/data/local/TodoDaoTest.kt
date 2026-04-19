@@ -81,4 +81,25 @@ class TodoDaoTest {
         assertEquals(5, widgetTasks.size)
         assertEquals(1, widgetTasks[0].id)
     }
+
+    @Test
+    fun updateAll_updatesMultipleTasksAtOnce() = runTest {
+        val task1 = TodoEntity(id = 1, title = "Task 1", position = 0)
+        val task2 = TodoEntity(id = 2, title = "Task 2", position = 1)
+        dao.insert(task1)
+        dao.insert(task2)
+
+        val updatedTask1 = task1.copy(position = 1)
+        val updatedTask2 = task2.copy(position = 0)
+        dao.updateAll(listOf(updatedTask1, updatedTask2))
+
+        val allTasks = dao.getAll().first()
+
+        assertEquals(2, allTasks.size)
+        assertEquals(2, allTasks[0].id)
+        assertEquals(0, allTasks[0].position)
+
+        assertEquals(1, allTasks[1].id)
+        assertEquals(1, allTasks[1].position)
+    }
 }
