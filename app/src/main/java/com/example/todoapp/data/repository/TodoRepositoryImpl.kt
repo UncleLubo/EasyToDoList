@@ -21,6 +21,12 @@ class TodoRepositoryImpl @Inject constructor(
         }
     }
 
+    override fun observeTodos(limit: Int): Flow<List<Todo>> {
+        return todoDao.getTodosForWidgetFlow(limit).map { entities ->
+            entities.map { it.toDomain() }
+        }
+    }
+
     override suspend fun getTodosForWidget(limit: Int): List<Todo> {
         return todoDao.getTodosForWidget(limit).map { it.toDomain() }
     }

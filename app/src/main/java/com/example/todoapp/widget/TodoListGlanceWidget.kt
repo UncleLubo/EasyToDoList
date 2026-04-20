@@ -25,7 +25,6 @@ import com.example.todoapp.MainActivity
 import com.example.todoapp.R
 import com.example.todoapp.domain.model.Todo
 import com.example.todoapp.data.mapper.toDomain
-import com.example.todoapp.data.local.TodoEntity
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -33,13 +32,13 @@ import kotlinx.coroutines.withContext
 class TodoListGlanceWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
-        val dao = EntryPointAccessors.fromApplication(
+        val repository = EntryPointAccessors.fromApplication(
             context.applicationContext,
             TodoWidgetEntryPoint::class.java,
-        ).todoDao()
+        ).todoRepository()
 
         val initialTodos = withContext(Dispatchers.IO) {
-            dao.getTodosForWidget(MAX_ITEMS)
+            repository.getTodosForWidget(MAX_ITEMS)
         }
 
         val openApp = Intent(context, MainActivity::class.java).apply {
@@ -47,8 +46,7 @@ class TodoListGlanceWidget : GlanceAppWidget() {
         }
 
         provideContent {
-            val todosEntities by dao.getTodosForWidgetFlow(MAX_ITEMS).collectAsState(initial = initialTodos)
-            val todos = todosEntities.map { it.toDomain() }
+            val todos by repository.observeTodos(MAX_ITEMS).collectAsState(initial = initialTodos)
 
             GlanceTheme {
                 Column(

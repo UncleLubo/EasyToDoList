@@ -1,6 +1,6 @@
 package com.example.todoapp.widget
 
-import com.example.todoapp.data.local.TodoDao
+import com.example.todoapp.data.repository.TodoRepository
 import dagger.hilt.EntryPoint
 import dagger.hilt.InstallIn
 import dagger.hilt.components.SingletonComponent
@@ -8,5 +8,5 @@ import dagger.hilt.components.SingletonComponent
 @EntryPoint
 @InstallIn(SingletonComponent::class)
 interface TodoWidgetEntryPoint {
-    fun todoDao(): TodoDao
+    fun todoRepository(): TodoRepository
 }
