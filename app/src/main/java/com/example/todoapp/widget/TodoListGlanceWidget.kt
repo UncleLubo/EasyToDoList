@@ -3,6 +3,8 @@ package com.example.todoapp.widget
 import android.content.Context
 import android.content.Intent
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.glance.GlanceId
@@ -23,11 +25,12 @@ import com.example.todoapp.MainActivity
 import com.example.todoapp.R
 import com.example.todoapp.domain.model.Todo
 import com.example.todoapp.data.mapper.toDomain
+import com.example.todoapp.data.local.TodoEntity
 import dagger.hilt.android.EntryPointAccessors
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-object TodoListGlanceWidget : GlanceAppWidget() {
+class TodoListGlanceWidget : GlanceAppWidget() {
 
     override suspend fun provideGlance(context: Context, id: GlanceId) {
         val dao = EntryPointAccessors.fromApplication(
@@ -35,8 +38,8 @@ object TodoListGlanceWidget : GlanceAppWidget() {
             TodoWidgetEntryPoint::class.java,
         ).todoDao()
 
-        val todos = withContext(Dispatchers.IO) {
-            dao.getTodosForWidget(MAX_ITEMS).map { it.toDomain() }
+        val initialTodos = withContext(Dispatchers.IO) {
+            dao.getTodosForWidget(MAX_ITEMS)
         }
 
         val openApp = Intent(context, MainActivity::class.java).apply {
@@ -44,6 +47,9 @@ object TodoListGlanceWidget : GlanceAppWidget() {
         }
 
         provideContent {
+            val todosEntities by dao.getTodosForWidgetFlow(MAX_ITEMS).collectAsState(initial = initialTodos)
+            val todos = todosEntities.map { it.toDomain() }
+
             GlanceTheme {
                 Column(
                     modifier = GlanceModifier
@@ -67,7 +73,9 @@ object TodoListGlanceWidget : GlanceAppWidget() {
         }
     }
 
-    private const val MAX_ITEMS = 8
+    companion object {
+        private const val MAX_ITEMS = 8
+    }
 }
 
 @Composable

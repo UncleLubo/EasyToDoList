@@ -12,6 +12,10 @@ interface TodoDao {
     @Query("SELECT * FROM todos ORDER BY position ASC, createdAt DESC")
     fun getAll(): Flow<List<TodoEntity>>
 
+    /** Flow read for the home screen widget to stay updated automatically. */
+    @Query("SELECT * FROM todos ORDER BY position ASC, createdAt DESC LIMIT :limit")
+    fun getTodosForWidgetFlow(limit: Int): Flow<List<TodoEntity>>
+
     /** One-shot read for the home screen widget (avoids Flow timing vs. DB writes). */
     @Query("SELECT * FROM todos ORDER BY position ASC, createdAt DESC LIMIT :limit")
     suspend fun getTodosForWidget(limit: Int): List<TodoEntity>

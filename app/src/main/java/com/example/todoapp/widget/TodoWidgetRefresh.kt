@@ -16,7 +16,7 @@ object TodoWidgetRefresh {
             val manager = GlanceAppWidgetManager(appContext)
             val glanceIds = manager.getGlanceIds(TodoListGlanceWidget::class.java)
             for (id in glanceIds) {
-                TodoListGlanceWidget.update(appContext, id)
+                TodoListGlanceWidget().update(appContext, id)
             }
         } catch (e: Exception) {
             Log.e(TAG, "Widget refresh failed", e)
